@@ -4,3 +4,10 @@ C:\Users\Taehyeon AN\documents\visual studio 2015\Projects\Ensharp_project5_mysq
 C:\Users\Taehyeon AN\documents\visual studio 2015\Projects\Ensharp_project5_mysqlBookmanage\Ensharp_project5_mysqlBookmanage\obj\Debug\Ensharp_project5_mysqlBookmanage.csprojResolveAssemblyReference.cache
 C:\Users\Taehyeon AN\documents\visual studio 2015\Projects\Ensharp_project5_mysqlBookmanage\Ensharp_project5_mysqlBookmanage\obj\Debug\Ensharp_project5_mysqlBookmanage.exe
 C:\Users\Taehyeon AN\documents\visual studio 2015\Projects\Ensharp_project5_mysqlBookmanage\Ensharp_project5_mysqlBookmanage\obj\Debug\Ensharp_project5_mysqlBookmanage.pdb
+C:\Users\Taehyeon AN\Documents\Ensharp-Project5-MysqlBookManage\Ensharp_project5_mysqlBookmanage\bin\Debug\Ensharp_project5_mysqlBookmanage.exe.config
+C:\Users\Taehyeon AN\Documents\Ensharp-Project5-MysqlBookManage\Ensharp_project5_mysqlBookmanage\obj\Debug\Ensharp_project5_mysqlBookmanage.exe
+C:\Users\Taehyeon AN\Documents\Ensharp-Project5-MysqlBookManage\Ensharp_project5_mysqlBookmanage\obj\Debug\Ensharp_project5_mysqlBookmanage.pdb
+C:\Users\Taehyeon AN\Documents\Ensharp-Project5-MysqlBookManage\Ensharp_project5_mysqlBookmanage\bin\Debug\Ensharp_project5_mysqlBookmanage.exe
+C:\Users\Taehyeon AN\Documents\Ensharp-Project5-MysqlBookManage\Ensharp_project5_mysqlBookmanage\bin\Debug\Ensharp_project5_mysqlBookmanage.pdb
+C:\Users\Taehyeon AN\Documents\Ensharp-Project5-MysqlBookManage\Ensharp_project5_mysqlBookmanage\bin\Debug\MySql.Data.dll
+C:\Users\Taehyeon AN\Documents\Ensharp-Project5-MysqlBookManage\Ensharp_project5_mysqlBookmanage\obj\Debug\Ensharp_project5_mysqlBookmanage.csprojResolveAssemblyReference.cache

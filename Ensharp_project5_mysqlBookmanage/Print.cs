@@ -463,6 +463,15 @@ namespace Project2_BookStore
 
 
         // 도서 관련
+        public void enterBookNoMessage()
+        {
+            Console.Clear();
+            title("도서번호 입력");
+            Console.WriteLine("\n 등록할 책의 고유번호를 입력하세요 (숫자 6자)");
+            Console.WriteLine(" 뒤로 가시려면 b 를 입력하세요");
+            Console.Write(" → ");
+        }
+
         public void enterBookNameMessage()
         {
             Console.Clear();
@@ -473,6 +482,14 @@ namespace Project2_BookStore
             Console.WriteLine(" 책 이름의 특수문자는 !, ?, - 만 허용합니다");
             Console.WriteLine(" 뒤로 가시려면 b 를 입력하세요");
             Console.Write(" → ");
+        }
+
+        public void bookNoExistsMessage()
+        {
+            Console.Clear();
+            Console.WriteLine("\n\n\n\n");
+            title("책 고유번호는 중복될 수 없습니다");
+            Console.ReadKey();
         }
 
         public void bookNameFirstNoSpaceMessage()

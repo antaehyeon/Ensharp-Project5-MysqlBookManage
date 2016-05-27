@@ -52,6 +52,7 @@ namespace Project2_BookStore
 
             MemberVO data = new MemberVO(ID, name, creatTime, PW, phoneNum);
             sd.MemberList.Add(data);
+            sd.memberInfoInsert(ID, name, phoneNum, PW, creatTime);
             print.idRegisterSccessMessage();
 
             run.startMember();
@@ -157,6 +158,7 @@ namespace Project2_BookStore
                 modifyName();
             }
             sd.MemberList[index].MemberName = name;
+            sd.modifyMember("Name", name, ID);
             print.modifySuccessResult();
         }
 
@@ -170,6 +172,7 @@ namespace Project2_BookStore
                 modifyPhoneNum();
             }
             sd.MemberList[index].PhoneNum = phoneNum;
+            sd.modifyMember("PhoneNumber", phoneNum, ID);
             print.modifySuccessResult();
         }
 
@@ -177,12 +180,13 @@ namespace Project2_BookStore
         public void modifyPassword()
         {
             print.enterPwForModify();
-            PW = Console.ReadLine();
+            PW = showStarPW();
             if (exception.pwCheck(PW, PW))
             {
                 modifyPassword();
             }
             sd.MemberList[index].PW = PW;
+            sd.modifyMember("PW", PW, ID);
             print.modifySuccessResult();
         }
 
@@ -205,6 +209,7 @@ namespace Project2_BookStore
                 if (PW == "b") run.startMember();
                 if (sd.MemberList[index].PW == PW)
                 {
+                    sd.deleteMember(ID);
                     print.deleteSuceessMessage();
                     run.startMember();
                 }
@@ -235,6 +240,7 @@ namespace Project2_BookStore
         // 회원검색 - 이름
         public void searchNameFunction()
         {
+            sd.SelectData();
             print.enterNameForSearch();
             name = Console.ReadLine();
             if (name == "b") run.searchMenu();

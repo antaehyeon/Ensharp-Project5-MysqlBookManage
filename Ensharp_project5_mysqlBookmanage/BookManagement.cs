@@ -13,6 +13,7 @@ namespace Project2_BookStore
         private Exception exception;
         private Run run;
 
+        private string bookNo;
         private string bookName;
         private string bookAuthor;
         private string bookPrice;
@@ -35,6 +36,10 @@ namespace Project2_BookStore
         {
             switch(mode)
             {
+                case 0: // 책 번호
+                    bookNo = enterBookNoFunction();
+                    this.registerBookFunction(1);
+                    break;
                 case 1: // 책 이름
                     bookName = this.enterBookNameFunction();
                     this.registerBookFunction(2);
@@ -54,12 +59,25 @@ namespace Project2_BookStore
 
             // bookNo = regBookQuantity (등록된 갯수)
             sd.RegisteredBookQuantity++;
-            regBookQuantity = Convert.ToString(sd.RegisteredBookQuantity);
-
-            BookVO bookData = new BookVO(regBookQuantity, bookName, bookAuthor, bookPrice, bookQuantity);
+            BookVO bookData = new BookVO(bookNo, bookName, bookAuthor, bookPrice, bookQuantity);
             sd.BookList.Add(bookData);
+            sd.bookInfoInsert(bookNo, bookName, bookAuthor, bookPrice, bookQuantity);
             print.bookRegisterSuccessMessage();
             run.bookMenu();
+        }
+
+        // 책 고유번호를 입력받는 기능
+        public string enterBookNoFunction()
+        {
+            print.enterBookNoMessage();
+            bookNo = Console.ReadLine();
+            if (bookNo == "b") run.bookMenu();
+            if (exception.bookNoCheck(bookNo))
+            {
+                print.ErrorMessage();
+                enterBookNoFunction();
+            }
+            return bookNo;
         }
 
         // 책 이름 입력받는 기능

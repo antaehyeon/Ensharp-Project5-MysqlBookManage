@@ -118,7 +118,7 @@ namespace Project2_BookStore
             switch (print.moveArrow(56, 8, 6, 5))
             {
                 case 8: // 도서등록
-                    book.registerBookFunction(1);
+                    book.registerBookFunction(0);
                     break;
                 case 9: // 도서찾기
                     book.findBookFunction();

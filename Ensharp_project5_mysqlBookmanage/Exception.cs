@@ -54,6 +54,9 @@ namespace Project2_BookStore
                 case 6: // 책 이름 (한글,영어,공백,숫자,몇가지 특문만 허용, 1-10자 제한)
                     sPattern = "^[a-zA-Z0-9가-힣' '!?-]{2,16}$";
                     break;
+                case 7: // 책 고유번호 ( 숫자 6자리만 가능 )
+                    sPattern = "^[0-9]{6,6}$";
+                    break;
             }
         
             if (System.Text.RegularExpressions.Regex.IsMatch(str, sPattern)) return false;
@@ -90,33 +93,30 @@ namespace Project2_BookStore
                 print.idIsNullMessage(); // ERROR
                 return true;
             }
-            if (ID.Length < 8) // ID가 너무 짧을경우
+            else if (ID.Length < 8) // ID가 너무 짧을경우
             {
                 print.lengthNotSatisfyMessage(); // ERROR
                 return true;
             }
-            if (stringFirstLetterNumCheck(ID)) // ID 첫문자가 숫자일경우
+            else if (stringFirstLetterNumCheck(ID)) // ID 첫문자가 숫자일경우
             {
                 print.idFirstLetterNoNumMessage(); // ERROR
                 return true;
             }
-            if (stringLength(ID, 14)) // 입력받은 문자의 길이가 14를 넘는조건
+            else if (stringLength(ID, 14)) // 입력받은 문자의 길이가 14를 넘는조건
             {
                 print.lengthOverMessage(); // ERROR
                 return true;
             }
-            if (stringCheck(ID, 1)) // 영어와 숫자만 들어가있는지 판별
+            else if (stringCheck(ID, 1)) // 영어와 숫자만 들어가있는지 판별
             {
                 print.onlyEnglishAndNumMessage(); // ERROR
                 return true;
             }
-            for (int i = 0; i < sd.MemberList.Count; i++) // 등록되있는 Member List 에서
+            else if (sd.selectIdForExists(ID)) // 중복일경우
             {
-                if (sd.MemberList[i].MemberID == ID) // ID가 중복되는지 검사
-                {
-                    print.duplicationIdMessage(); // ERROR
-                    return true;
-                }
+                print.duplicationIdMessage();
+                return true;
             }
             return false;
         }
@@ -230,12 +230,20 @@ namespace Project2_BookStore
         }
 
         // BookNo Check
-        public bool bookNoCheck(string no)
+        public bool bookNoCheck(string bookNo)
         {
-            if (stringCheck(no, 5))
+            if (stringCheck(bookNo, 7))
             {
                 print.ErrorMessage();
                 return true;
+            }
+            for (int i = 0; i < sd.RegisteredBookQuantity; i++)
+            {
+                if (sd.BookList[i].BookNo == bookNo)
+                {
+                    print.bookNoExistsMessage();
+                    return true;
+                }
             }
             return false;
         }
