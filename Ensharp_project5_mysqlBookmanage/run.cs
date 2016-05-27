@@ -15,7 +15,7 @@ namespace Project2_BookStore
 
         public Run()
         {
-            print = new Print();
+            print = new Print(this);
             member = new MemberManagement(this);
             book = new BookManagement(this);
         }
@@ -24,7 +24,7 @@ namespace Project2_BookStore
         public void start()
         {
             Console.SetWindowSize(124, 40);
-            int selectMenu = print.moveArrow(56, 8, 5, 1);
+            int selectMenu = print.moveArrow(56, 8, 6, 1);
 
             switch (selectMenu)
             {
@@ -40,7 +40,10 @@ namespace Project2_BookStore
                 case 11: // 도서반납
                     book.returnBook();
                     break;
-                case 12: // 종료
+                case 12: // 로그출력
+                    print.log();
+                    break;
+                case 13: // 종료
                     print.exitMessage();
                     break;
             } // switch
@@ -78,7 +81,7 @@ namespace Project2_BookStore
         // 수정메뉴
         public void modifyMenu()
         {
-            switch (print.moveArrow(54, 8, 4, 3))
+            switch (print.moveArrow(55, 8, 4, 3))
             {
                 case 8: // 이름
                     member.modifyName();
@@ -138,6 +141,7 @@ namespace Project2_BookStore
             }
         } // Method - bookMenu
 
+        // 책 정보수정
         public void bookInfoChangeMenu()
         {
             switch (print.moveArrow(56, 8, 6, 6))

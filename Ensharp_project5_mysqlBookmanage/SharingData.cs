@@ -13,10 +13,8 @@ namespace Project2_BookStore
     class SharingData
     {
         private static SharingData sdata;
-        private List<MemberVO> memberList;
-        private List<BookVO> bookList;
-
-        private int registeredBookQuantity = 0;
+        
+        private BookVO bookData;
 
         // MySql
         string strConn = "Server=localhost; Database=bookmanage; Uid=root; Pwd=xogus1696";
@@ -25,8 +23,7 @@ namespace Project2_BookStore
 
         public SharingData()
         {
-            MemberList = new List<MemberVO>();
-            BookList = new List<BookVO>();
+            BookData = new BookVO();
             // MySql 연결
             conn = new MySqlConnection(strConn);
         }
@@ -37,33 +34,11 @@ namespace Project2_BookStore
             return sdata;
         }
 
-        internal List<MemberVO> MemberList
+        internal BookVO BookData
         {
-            get { return memberList; }
-            set { memberList = value; }
+            get { return bookData; }
+            set { bookData = value; }
         }
-
-        internal List<BookVO> BookList
-        {
-            get { return bookList; }
-            set { bookList = value; }
-        }
-
-        public int RegisteredBookQuantity
-        {
-            get { return registeredBookQuantity; }
-            set { registeredBookQuantity = value; }
-        }
-
-        /*
-            conn.Open();
-            cmd = conn.CreateCommand();
-
-            cmd.ExecuteNonQuery();
-            conn.Close();
-         */
-
-        //            int result = Convert.ToInt32(cmd.ExecuteScalar());
 
         // INSERT 멤버 정보
         public void memberInfoInsert(string Id, string Name, string PhoneNumber, string PW, string createTime)
@@ -95,65 +70,114 @@ namespace Project2_BookStore
             conn.Close();
         }
 
-        // DB에서 존재하는 ID인지 판별
-        // 존재 : true 반환
-        // 없음 : flase 반환
-        public bool selectIdForExists(string Id)
+        public void insertBookRentNo(string BookNo)
         {
             conn.Open();
             cmd = conn.CreateCommand();
-            cmd.CommandText = "SELECT EXISTS (SELECT * FROM member WHERE ID = @ID)";
-            cmd.Parameters.Add("@ID", MySqlDbType.VarChar).Value = Id;
+            cmd.CommandText = "INSERT INTO rent (Fno) VALUES ('" + BookNo + "');";
+            cmd.ExecuteNonQuery();
+            conn.Close();
+        }
+
+        public void insertLog(string str)
+        {
+            conn.Open();
+            cmd = conn.CreateCommand();
+            cmd.CommandText = "INSERT INTO log (log) VALUES ('" + str + "');";
+            cmd.ExecuteNonQuery();
+            conn.Close();
+        }
+
+        public int countRow(string table)
+        {
+            conn.Open();
+            cmd = conn.CreateCommand();
+
+            cmd.CommandText = "SELECT * FROM " + table;
+
+            int count = Convert.ToInt32(cmd.ExecuteScalar());
+            conn.Close();
+
+            return count;
+        }
+
+        // DB에서 존재하는 ID인지 판별
+        // 존재 : true 반환
+        // 없음 : flase 반환
+        public bool selectForExists(string table, string field, string param)
+        {
+            conn.Open();
+            cmd = conn.CreateCommand();
+            cmd.CommandText = "SELECT EXISTS (SELECT * FROM " +table+ " WHERE " +field+ " = '" +param+ "');";
             int result = Convert.ToInt32(cmd.ExecuteScalar());
             conn.Close();
-            // DB에서 ID의 중복이 존재할 경우
+            // DB에서 ID의 중복이 존재할 경우 true 리턴
             if (result == 1) { return true; }
             return false;
         }
 
-        public void modifyMember(string field, string param, string Id)
+        public void update(string table, string modifyField, string modifyData, string conditionField, string conditionData )
         {
             conn.Open();
             cmd = conn.CreateCommand();
-            cmd.CommandText = "UPDATE member SET "+field+" = @param WHERE ID = @ID";
-            cmd.Parameters.Add("@param", MySqlDbType.VarChar).Value = param;
-            cmd.Parameters.Add("@ID", MySqlDbType.VarChar).Value = Id;
+            cmd.CommandText = "UPDATE " + table + " SET " + modifyField + " = '" + modifyData + "' WHERE " + conditionField + " = '" + conditionData + "';";
             cmd.ExecuteNonQuery();
             conn.Close();
         }
 
-        public void deleteMember(string Id)
+        public void delete(string table, string field, string param)
         {
             conn.Open();
             cmd = conn.CreateCommand();
-            cmd.CommandText = "DELETE FROM member WHERE ID = @ID";
-            cmd.Parameters.Add("@ID", MySqlDbType.VarChar).Value = Id;
+            cmd.CommandText = "DELETE FROM " +table+ " WHERE "+field+" = '" +param+ "';";
             cmd.ExecuteNonQuery();
             conn.Close();
         }
 
-        public void SelectData()
+        // field : 테이블의 찾을 항목
+        // param : 찾을 정보
+        // needInfo : 필요한 정보
+        public string select(string table, string field, string param, string needInfoTable)
         {
             DataSet ds = new DataSet();
 
-            string sql = "SELECT * FROM member";
+            string sql = "SELECT * FROM " +table+ " WHERE " +field+ " = '" +param+ "'";
             MySqlDataAdapter adpt = new MySqlDataAdapter(sql, conn);
-            adpt.Fill(ds, "member");
+            adpt.Fill(ds, table);
             if (ds.Tables.Count > 0)
             {
                 foreach(DataRow r in ds.Tables[0].Rows)
                 {
-                    Console.Write(r["ID"]);
-                    Console.Write(r["Name"]);
-                    Console.Write(r["PhoneNumber"]);
-                    Console.Write(r["PW"]);
-                    Console.Write(r["CreateTime"]);
+                    return param = Convert.ToString(r[needInfoTable]);
                 }
             }
+            return null;
         }
 
+        // 전체정보 가져오기
+        public DataSet selectAll(string table)
+        {
+            DataSet ds = new DataSet();
 
+            string sql = "SELECT * FROM " + table;
+            MySqlDataAdapter adpt = new MySqlDataAdapter(sql, conn);
+            adpt.Fill(ds, table);
 
+            return ds;
+        }
+
+        // 조건으로 전부 SELECT
+        public DataSet selectCondition(string table, string field, string param)
+        {
+            DataSet ds = new DataSet();
+
+            string sql = "SELECT * FROM " +table+ " WHERE " +field+ " = '" +param+ "'";
+            MySqlDataAdapter adpt = new MySqlDataAdapter(sql, conn);
+            adpt.Fill(ds, "member");
+
+            return ds;
+        }
+        
 
     }
 }

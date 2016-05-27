@@ -4,17 +4,25 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Data;
 
 
 namespace Project2_BookStore
 {
     class Print
     {
+        Run run;
         SharingData sd;
+        DataSet ds;
 
         public Print()
         {
             sd = SharingData.GetInstance();
+        }
+        public Print(Run run)
+        {
+            sd = SharingData.GetInstance();
+            this.run = run;
         }
 
 
@@ -89,6 +97,7 @@ namespace Project2_BookStore
             Console.Write(hangleCenterArrange(124, "[  ] 도서 관리"));
             Console.Write(hangleCenterArrange(124, "[  ] 도서 대여"));
             Console.Write(hangleCenterArrange(124, "[  ] 도서 반납"));
+            Console.Write(hangleCenterArrange(124, "[  ] 기록 확인"));
             Console.Write(hangleCenterArrange(124, "[  ] 종     료"));
         } // method - printFirstMenu
 
@@ -313,28 +322,26 @@ namespace Project2_BookStore
         }
 
         // 결과 출력
-        public void idRegisterSccessMessage()
+        public void idRegisterSccessMessage(string ID, string name, string phoneNum, string createTime)
         {
-            int memberNumber = sd.MemberList.Count();
-
             Console.Clear();
             title("정상 등록");
             Console.WriteLine("\n");
-            Console.WriteLine(" ID : {0}", sd.MemberList[memberNumber - 1].MemberID);
-            Console.WriteLine(" 이름 : {0}", sd.MemberList[memberNumber - 1].MemberName);
-            Console.WriteLine(" 핸드폰번호 : {0}", sd.MemberList[memberNumber - 1].PhoneNum);
-            Console.WriteLine("\n {0} 에 정상적으로 등록되었습니다", sd.MemberList[memberNumber - 1].CreateTime);
+            Console.WriteLine(" ID : {0}", ID);
+            Console.WriteLine(" 이름 : {0}", name);
+            Console.WriteLine(" 핸드폰번호 : {0}", phoneNum);
+            Console.WriteLine("\n {0} 에 정상적으로 등록되었습니다", createTime);
             Console.ReadKey();
         }
 
-        public void searchIdResult(int index)
+        public void searchIdResult(string id, string name, string phoneNum, string createTime)
         {
             Console.Clear();
             title("결과 출력");
-            Console.WriteLine("{0} 로 찾으신 정보입니다\n\n", sd.MemberList[index].MemberID);
-            Console.WriteLine(" 이름 : {0}", sd.MemberList[index].MemberName);
-            Console.WriteLine(" 핸드폰 번호 : {0}", sd.MemberList[index].PhoneNum);
-            Console.WriteLine(" 생성 시간 : {0}", sd.MemberList[index].CreateTime);
+            Console.WriteLine("{0} 로 찾으신 정보입니다\n\n", id);
+            Console.WriteLine(" 이름 : {0}", name);
+            Console.WriteLine(" 핸드폰 번호 : {0}", phoneNum);
+            Console.WriteLine(" 생성 시간 : {0}", createTime);
 
             Console.WriteLine("\n\n전 메뉴로 가시려면 아무키나 누르세요");
             Console.ReadKey();
@@ -350,12 +357,12 @@ namespace Project2_BookStore
             memberEndLine();
         }
 
-        public void memberResult(int index)
+        public void memberResult(string id, string name, string phoneNum, string createTime)
         {
-            Console.Write("┃{0, -16}", sd.MemberList[index].MemberID);
-            Console.Write("┃{0}", hangleCenterArrange(12, sd.MemberList[index].MemberName));
-            Console.Write("┃{0, -12}", sd.MemberList[index].PhoneNum);
-            Console.WriteLine("┃{0, -22}┃", sd.MemberList[index].CreateTime);
+            Console.Write("┃{0, -16}", id);
+            Console.Write("┃{0, -9}", name);
+            Console.Write("┃{0, -12}", phoneNum);
+            Console.WriteLine("┃{0, -22}┃", createTime);
         }
 
         public void memberListTitle()
@@ -467,7 +474,7 @@ namespace Project2_BookStore
         {
             Console.Clear();
             title("도서번호 입력");
-            Console.WriteLine("\n 등록할 책의 고유번호를 입력하세요 (숫자 6자)");
+            Console.WriteLine("\n 등록할 책의 고유번호를 입력하세요 (숫자 4자까지만 가능)");
             Console.WriteLine(" 뒤로 가시려면 b 를 입력하세요");
             Console.Write(" → ");
         }
@@ -699,9 +706,20 @@ namespace Project2_BookStore
             Console.ReadKey();
         }
 
+        public void noPrintInfoMessage()
+        {
+            Console.Clear();
+            Console.WriteLine("\n\n\n\n");
+            title("출력할 정보가 존재하지 않습니다");
+            Console.ReadKey();
+        }
+
         public void noMatchPW()
         {
-            Console.WriteLine("비밀번호가 맞지 않습니다");
+            Console.Clear();
+            Console.WriteLine("\n\n\n\n");
+            title("비밀번호가 맞지 않습니다");
+            Console.ReadKey();
         }
 
         public void alreadyRentBook()
@@ -746,26 +764,34 @@ namespace Project2_BookStore
         }
 
         // 책 출력부분
-        public void bookElement(int index)
+        public void bookElement(BookVO b)
         {
-            string strWon;
-            if(sd.BookList[index].BookPrice == "FREE")
-            {
-                strWon = "FREE";
-            }
+            string strWon = "";
+            string rentId = "";
+            string rentTime = "";
+
+            if (b.BookPrice == "FREE") { strWon = "FREE"; }
             else
             {
-                int won = Convert.ToInt32(sd.BookList[index].BookPrice);
+                int won = Convert.ToInt32(b.BookPrice);
                 strWon = won.ToString("#,##0");
             }
 
-            Console.Write("┃{0}", hangleCenterArrange(4, sd.BookList[index].BookNo));
-            Console.Write("┃{0}", hangleCenterArrange(28, sd.BookList[index].BookName));
-            Console.Write("┃{0}", hangleCenterArrange(20, sd.BookList[index].BookAuthor));
-            Console.Write("┃{0}", hangleCenterArrange(4, sd.BookList[index].BookQuantity));
+            ds = sd.selectCondition("rent", "Fno", b.BookNo);
+
+            foreach (DataRow r in ds.Tables[0].Rows)
+            {
+                rentId = Convert.ToString(r["BookRentID"]);
+                rentTime = Convert.ToString(r["BookRentTime"]);
+            }
+
+            Console.Write("┃{0}", hangleCenterArrange(4, b.BookNo));
+            Console.Write("┃{0}", hangleCenterArrange(28, b.BookName));
+            Console.Write("┃{0}", hangleCenterArrange(20, b.BookAuthor));
+            Console.Write("┃{0}", hangleCenterArrange(4, b.BookQuantity));
             Console.Write("┃{0}", hangleCenterArrange(10, strWon));
-            Console.Write("┃{0}", hangleCenterArrange(24, sd.BookList[index].BookRentTime));
-            Console.WriteLine("┃{0}┃", hangleCenterArrange(16, sd.BookList[index].BookRentID));
+            Console.Write("┃{0}", hangleCenterArrange(24, rentTime));
+            Console.WriteLine("┃{0}┃", hangleCenterArrange(16, rentId));
         }
 
         public void knowEndMessage()
@@ -837,6 +863,21 @@ namespace Project2_BookStore
             Console.WriteLine("\n\n\n\n");
             title("정상적으로 수정되었습니다");
             Console.ReadKey();
+        }
+
+        public void log()
+        {
+            Console.Clear();
+            title("기록 출력");
+            ds = sd.selectAll("log");
+
+            foreach (DataRow r in ds.Tables[0].Rows)
+            {
+                Console.WriteLine("{0}", Convert.ToString(r["log"]));
+            }
+            Console.WriteLine("계속하려면 아무키나 눌러주세요");
+            Console.ReadKey();
+            run.start();
         }
 
         // length (총길이), strData (문자열) 을 이용해서

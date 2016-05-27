@@ -54,8 +54,8 @@ namespace Project2_BookStore
                 case 6: // 책 이름 (한글,영어,공백,숫자,몇가지 특문만 허용, 1-10자 제한)
                     sPattern = "^[a-zA-Z0-9가-힣' '!?-]{2,16}$";
                     break;
-                case 7: // 책 고유번호 ( 숫자 6자리만 가능 )
-                    sPattern = "^[0-9]{6,6}$";
+                case 7: // 책 고유번호 ( 숫자 4자리만 가능 )
+                    sPattern = "^[0-9]{4,4}$";
                     break;
             }
         
@@ -113,7 +113,7 @@ namespace Project2_BookStore
                 print.onlyEnglishAndNumMessage(); // ERROR
                 return true;
             }
-            else if (sd.selectIdForExists(ID)) // 중복일경우
+            else if (sd.selectForExists("member", "ID", ID)) // 중복일경우
             {
                 print.duplicationIdMessage();
                 return true;
@@ -145,14 +145,12 @@ namespace Project2_BookStore
                 print.phoneNumLengthOverMessage();
                 return true;
             }
-            for (int i = 0; i < sd.MemberList.Count; i++)
+            if (sd.selectForExists("member", "PhoneNumber", phoneNum))
             {
-                if (phoneNum == sd.MemberList[i].PhoneNum)
-                {
-                    print.existsPhoneNumMessage();
-                    return true;
-                }
+                print.existsPhoneNumMessage();
+                return true;
             }
+
             return false;
         }
 
@@ -237,14 +235,15 @@ namespace Project2_BookStore
                 print.ErrorMessage();
                 return true;
             }
-            for (int i = 0; i < sd.RegisteredBookQuantity; i++)
+
+            // 존재하면 TRUE
+            else if (sd.selectForExists("book", "BookNo", bookNo))
             {
-                if (sd.BookList[i].BookNo == bookNo)
-                {
-                    print.bookNoExistsMessage();
-                    return true;
-                }
+                // 책 고유번호는 중복될 수 없습니다
+                print.bookNoExistsMessage();
+                return true;
             }
+
             return false;
         }
 

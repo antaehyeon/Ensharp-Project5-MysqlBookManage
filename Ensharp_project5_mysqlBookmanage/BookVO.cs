@@ -13,8 +13,6 @@ namespace Project2_BookStore
         private string bookAuthor;
         private string bookPrice;
         private string bookQuantity;
-        private string bookRentTime;
-        private string bookRentID;
 
         public BookVO() { }
         public BookVO(string bookNo, string bookName, string bookAuthor, string bookPrice, string bookQuantity)
@@ -24,8 +22,6 @@ namespace Project2_BookStore
             this.bookAuthor = bookAuthor;
             this.bookPrice = bookPrice;
             this.bookQuantity = bookQuantity;
-            this.bookRentTime = "";
-            this.bookRentID = "";
         }
 
         public string BookNo
@@ -56,18 +52,6 @@ namespace Project2_BookStore
         {
             get { return bookQuantity; }
             set { bookQuantity = value; }
-        }
-
-        public string BookRentTime
-        {
-            get { return bookRentTime; }
-            set { bookRentTime = value; }
-        }
-
-        public string BookRentID
-        {
-            get { return bookRentID; }
-            set { bookRentID = value; }
         }
     }
 }

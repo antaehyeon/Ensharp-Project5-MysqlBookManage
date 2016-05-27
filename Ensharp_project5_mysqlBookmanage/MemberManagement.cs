@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Data;
 
 namespace Project2_BookStore
 {
@@ -17,13 +18,14 @@ namespace Project2_BookStore
         private string name;
         private string phoneNum;
         private string PW;
+        private string createTime;
 
-        private int index;
+        DataSet ds;
 
         public MemberManagement(Run run)
         {
             exception = new Exception();
-            print = new Print();
+            print = new Print(run);
             sd = SharingData.GetInstance();
             this.run = run;
         } 
@@ -50,10 +52,9 @@ namespace Project2_BookStore
             }
             string creatTime = DateTime.Now.ToString();
 
-            MemberVO data = new MemberVO(ID, name, creatTime, PW, phoneNum);
-            sd.MemberList.Add(data);
+            //MemberVO data = new MemberVO(ID, name, creatTime, PW, phoneNum);
             sd.memberInfoInsert(ID, name, phoneNum, PW, creatTime);
-            print.idRegisterSccessMessage();
+            print.idRegisterSccessMessage(ID, name, phoneNum, creatTime);
 
             run.startMember();
         }
@@ -116,35 +117,54 @@ namespace Project2_BookStore
             return phoneNum;
         }
 
-        // 회원수정
+        // 회원수정 - 로그인하는 부분
         public void modifyMember()
         {
+            string enterPW;
+            bool check = false;
             Console.Clear();
             print.modifyMessage();
             ID = Console.ReadLine();
             if (ID == "b") run.startMember();
-            for (int index = 0; index < sd.MemberList.Count; index++)
-            {
-                if(ID == sd.MemberList[index].MemberID)
+
+            ds = sd.selectCondition("member", "ID", ID);
+
+            // 아이디를 데이터베이스에서 긁어오는 부분
+            // 아이디를 긁어오면서 패스워드도 같이 저장후 아래서 비교
+            for (int i = 0; i < ds.Tables.Count; i++)
+            {          
+                foreach (DataRow r in ds.Tables[i].Rows)
                 {
-                    print.enterPwForModify();
-                    PW = showStarPW();
-                    if (PW == "b") run.startMember();
-                    if (PW == sd.MemberList[index].PW)
+                    if (Convert.ToString(r["ID"]) == ID)
                     {
-                        run.modifyMenu();
-                        return;
-                    }
-                    else
-                    {
-                        print.discordPwMessage();
-                        index--;
-                        continue;
+                        print.enterPwForModify();
+                        PW = Convert.ToString(r["PW"]);
+                        check = true;
+                        break;
                     }
                 }
+                if (check) { break; }
             }
-            print.notFindIdMessage();
-            modifyMember();
+
+            // 아이디를 못찾을경우
+            if (!check)
+            {
+                print.notFindIdMessage();
+                modifyMember();
+            }
+
+            // 비밀번호 입력부분
+            enterPW = showStarPW();
+            if (PW == "b") run.startMember();
+            if (enterPW == PW)
+            {
+                run.modifyMenu();
+            }
+            else
+            {
+                print.noMatchPW();
+                modifyMember();
+            }
         }
 
         // 이름수정
@@ -157,9 +177,9 @@ namespace Project2_BookStore
             {
                 modifyName();
             }
-            sd.MemberList[index].MemberName = name;
-            sd.modifyMember("Name", name, ID);
+            sd.update("member", "Name", name, "ID", ID);
             print.modifySuccessResult();
+            run.modifyMenu();
         }
 
         // 핸드폰번호 수정
@@ -171,9 +191,9 @@ namespace Project2_BookStore
             {
                 modifyPhoneNum();
             }
-            sd.MemberList[index].PhoneNum = phoneNum;
-            sd.modifyMember("PhoneNumber", phoneNum, ID);
+            sd.update("member", "PhoneNumber", phoneNum, "ID", ID);
             print.modifySuccessResult();
+            run.modifyMenu();
         }
 
         // 비밀번호 수정
@@ -185,9 +205,9 @@ namespace Project2_BookStore
             {
                 modifyPassword();
             }
-            sd.MemberList[index].PW = PW;
-            sd.modifyMember("PW", PW, ID);
+            sd.update("member", "PW", PW, "ID", ID);
             print.modifySuccessResult();
+            run.modifyMenu();
         }
 
         // 회원삭제
@@ -196,8 +216,8 @@ namespace Project2_BookStore
             print.enterIdForDelete();
             ID = Console.ReadLine();
             if (ID == "b") run.startMember();
-            index = findIndex(ID, 1);
-            if (index == -1) // MemberList에 ID가 없을경우
+            bool existCheck = sd.selectForExists("member", "ID", ID);
+            if (!existCheck) // MemberList에 ID가 없을경우
             {
                 print.notFindIdMessage();
                 deleteMember();
@@ -207,9 +227,11 @@ namespace Project2_BookStore
                 print.enterPwForDelete();
                 PW = showStarPW();
                 if (PW == "b") run.startMember();
-                if (sd.MemberList[index].PW == PW)
+
+                // select : ID 필드에서 입력된 ID에 해당하는 PW를 찾는다
+                if (PW == sd.select("member", "ID", ID, "PW"))
                 {
-                    sd.deleteMember(ID);
+                    sd.delete("member", "ID", ID);
                     print.deleteSuceessMessage();
                     run.startMember();
                 }
@@ -227,32 +249,52 @@ namespace Project2_BookStore
             print.enterIdForSearch();
             ID = Console.ReadLine();
             if (ID == "b") run.searchMenu();
-            index = findIndex(ID, 1);
-            if (index == -1)
+            bool exist = sd.selectForExists("member", "ID", ID);
+            if (exist)
+            {
+                // 해당 정보를 SELECT 구문으로 정보를 긁어온다
+                name = sd.select("member",  "ID", ID, "Name");
+                phoneNum = sd.select("member", "ID", ID, "PhoneNumber");
+                createTime = sd.select("member", "ID", ID, "CreateTime");
+
+                // 해당 정보를 넘겨주고 출력
+                print.searchIdResult(ID, name, phoneNum, createTime);
+                run.searchMenu();
+            }
+            else
             {
                 print.notFindIdMessage();
                 searchIdFunction();
             }
-            print.searchIdResult(index);
-            run.searchMenu();
+
         }
 
         // 회원검색 - 이름
         public void searchNameFunction()
         {
-            sd.SelectData();
             print.enterNameForSearch();
             name = Console.ReadLine();
             if (name == "b") run.searchMenu();
 
             print.memberTitle();
-            for (int i = 0; i < sd.MemberList.Count; i++)
+
+            ds = sd.selectCondition("member", "Name", name);
+            if (ds.Tables.Count > 0)
             {
-                if(sd.MemberList[i].MemberName == name)
+                foreach (DataRow r in ds.Tables[0].Rows)
                 {
-                    print.memberResult(i);
+                    ID = ID = Convert.ToString(r["ID"]);
+                    name = Convert.ToString(r["Name"]);
+                    phoneNum = Convert.ToString(r["PhoneNumber"]);
+                    createTime = Convert.ToString(r["CreateTime"]);
+                    print.memberResult(ID, name, phoneNum, createTime);
                     print.memberEndLine();
                 }
+            }
+            else
+            {
+                print.noPrintInfoMessage();
+                run.startMember();
             }
             Console.ReadKey();
         }
@@ -260,11 +302,24 @@ namespace Project2_BookStore
         // 회원목록출력
         public void printMember()
         {
+            ds = sd.selectAll("member");
             print.memberListTitle();
-            for (int i = 0; i < sd.MemberList.Count; i++)
+            if (ds.Tables.Count > 0)
             {
-                print.memberResult(i);
-                print.memberEndLine();
+                foreach (DataRow r in ds.Tables[0].Rows)
+                {
+                    ID = Convert.ToString(r["ID"]);
+                    name = Convert.ToString(r["Name"]);
+                    phoneNum = Convert.ToString(r["PhoneNumber"]);
+                    createTime = Convert.ToString(r["CreateTime"]);
+                    print.memberResult(ID, name, phoneNum, createTime);
+                    print.memberEndLine();
+                }
+            }
+            else
+            {
+                print.noPrintInfoMessage();
+                run.startMember();
             }
             Console.ReadKey();
         }
@@ -297,19 +352,5 @@ namespace Project2_BookStore
 
             return pass;
         } // method - password
-
-        // 해당 요소(str)의 INDEX를 찾음
-        public int findIndex(string str, int mode)
-        {
-            for (int i = 0; i < sd.MemberList.Count; i++)
-            {
-                if (mode == 1 && sd.MemberList[i].MemberID == str)
-                    return i;
-                else if (mode == 2 && sd.MemberList[i].MemberName == str)
-                    return i;
-            }
-            return -1;
-        }
-
     } // Class - Management
 }

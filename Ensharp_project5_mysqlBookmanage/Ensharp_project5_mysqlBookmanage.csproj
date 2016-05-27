@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BookManagement.cs" />
+    <Compile Include="BookRentVO.cs" />
     <Compile Include="BookVO.cs" />
     <Compile Include="Exception.cs" />
     <Compile Include="MemberManagement.cs" />
